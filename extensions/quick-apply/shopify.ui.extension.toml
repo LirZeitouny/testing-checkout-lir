@@ -1,0 +1,7 @@
+type = "checkout_ui_extension"
+name = "quick-apply"
+
+extension_points = [
+  'Checkout::ShippingMethods::RenderAfter',
+  'Checkout::Reductions::RenderBefore'
+]
