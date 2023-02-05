@@ -5,3 +5,6 @@ extension_points = [
   'Checkout::ShippingMethods::RenderAfter',
   'Checkout::Reductions::RenderBefore'
 ]
+
+[capabilities]
+network_access = true
