@@ -67,7 +67,6 @@ function App() {
   ]
 
   if(checked || !quickApplyValid) return null;
-
   // Render the extension components
   return ( 
       <BlockStack> 
@@ -110,7 +109,7 @@ function renderQuickApply(textHTML, data) {
   textHTML =textHTML.replaceAll("</strong>", "")
   textHTML =textHTML.replaceAll("</p>", "")
 
-  return document.write(textHTML)
+  return textHTML
 
 
 }
