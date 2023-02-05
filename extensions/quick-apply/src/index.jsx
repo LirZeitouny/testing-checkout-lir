@@ -9,6 +9,7 @@ import {
   useCustomer,
   useShop,
   useApplyGiftCardChange,
+  useAppliedGiftCards,
   useCartLines,
 } from "@shopify/checkout-ui-extensions-react";
 
@@ -44,15 +45,16 @@ function App() {
     fetchCustomerGiftCard();
   }, []);
   
-    // Set a function to handle the Checkbox component's onChange event
-    const handleChange = () => {
-      const type = checked ? "removeGiftCard" : "addGiftCard" ;
-      setCode({type, code: giftCard.code});
-      setChecked(!checked);
-    };
+  // Set a function to handle the Checkbox component's onChange event
+  const handleChange = () => {
+    const type = checked ? "removeGiftCard" : "addGiftCard" ;
+    setCode({type, code: giftCard.code});
+    setChecked(!checked);
+  };
 
   const fraudRisk = isRiseGiftCardInCart(settings.c2c_giftcard_product_id, cartLines)
-  const quickApplyValid = giftCard && giftCard.balance && giftCard.balance > 0 && !fraudRisk
+  const alreadyApplied = isGiftCardAlreadyApplied(giftCard.code);
+  const quickApplyValid = giftCard && giftCard.balance && giftCard.balance > 0 && !fraudRisk && !alreadyApplied
 
   const htmlText = quickApplySettings?.panel?.text || "";
   const buttonText = quickApplySettings?.panel?.button_text || "";
@@ -64,9 +66,8 @@ function App() {
     giftCard.code
   ]
 
-  // const store_credit_value = giftCard.balance
-  console.log(checked)
   if(checked || !quickApplyValid) return null;
+
   // Render the extension components
   return ( 
       <BlockStack> 
@@ -89,6 +90,12 @@ function isRiseGiftCardInCart(riseGiftCardId, cartLines) {
     });
 }
 
+function isGiftCardAlreadyApplied(loyaltyCardCode) {
+  const appliedGiftCards = useAppliedGiftCards();
+  // const loyaltyCardCodeLastChars = loyaltyCardCode.substring()
+  return appliedGiftCards.some((giftCard) => { return loyaltyCardCode.endsWith(giftCard.lastCharacters) })
+}
+
 function renderQuickApply(textHTML, data) {
   if(!textHTML) return
   
@@ -103,7 +110,7 @@ function renderQuickApply(textHTML, data) {
   textHTML =textHTML.replaceAll("</strong>", "")
   textHTML =textHTML.replaceAll("</p>", "")
 
-  return textHTML
+  return document.write(textHTML)
 
 
 }
