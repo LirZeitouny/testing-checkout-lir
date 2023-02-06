@@ -18,19 +18,19 @@ render("Checkout::Reductions::RenderBefore", () => <App />);
 function App() {
   // Get the Customer, Shop, cartLine Objects from Shopify
   const shopifyCustomer = useCustomer()
-  const {myshopifyDomain} = useShop()
+  const { myshopifyDomain } = useShop()
   const cartLines = useCartLines()
 
   if (!shopifyCustomer || !myshopifyDomain) return;
 
   const [checked, setChecked] = useState(false);
-  const [giftCard, setCustomerGiftcard] = useState({})
-  const [settings, setStoreSettings] = useState({})
-  const [quickApplySettings, setQuickApplySettings] = useState({})
+  const [giftCard, setCustomerGiftcard] = useState(null)
+  const [settings, setStoreSettings] = useState(null)
+  const [quickApplySettings, setQuickApplySettings] = useState(null)
   const setCode = useApplyGiftCardChange()
   const customer_id = shopifyCustomer.id.match(/(\d+)/)[0];
 
-   useEffect(() => { 
+  useEffect(() => {
     const fetchCustomerGiftCard = async () => {
       const responseCustomer = await fetch(`https://strn.rise-ai.com/api/customer/${customer_id}?shop_url=${myshopifyDomain}`);
       const jsonCustomer = await responseCustomer.json();
@@ -44,12 +44,12 @@ function App() {
     };
     fetchCustomerGiftCard();
   }, []);
-  
+
   // Set a function to handle the Checkbox component's onChange event
   const handleChange = () => {
-    const type = checked ? "removeGiftCard" : "addGiftCard" ;
-    setCode({type, code: giftCard.code});
+    const type = checked ? "removeGiftCard" : "addGiftCard";
     setChecked(!checked);
+    setCode({ type, code: giftCard.code });
   };
 
   const fraudRisk = isRiseGiftCardInCart(settings.c2c_giftcard_product_id, cartLines)
@@ -66,27 +66,27 @@ function App() {
     giftCard.code
   ]
 
-  if(checked || !quickApplyValid) return null;
+  if (checked || !quickApplyValid || !quickApplySettings)  return null;
   // Render the extension components
-  return ( 
-      <BlockStack> 
-        <Text> {renderQuickApply(htmlText, data)}</Text>
-        <View inlineAlignment='start'>
-          <Button inlineAlignment='start' onPress={handleChange}>
-            {buttonText}
-          </Button> 
-        </View>
-        <Divider>
-        </Divider>
-    </BlockStack> 
+  return (
+    <BlockStack>
+      <Text> {renderQuickApply(htmlText, data)}</Text>
+      <View inlineAlignment='start'>
+        <Button inlineAlignment='start' onPress={handleChange}>
+          {buttonText}
+        </Button>
+      </View>
+      <Divider>
+      </Divider>
+    </BlockStack>
   );
 }
 
 function isRiseGiftCardInCart(riseGiftCardId, cartLines) {
   return cartLines.some(line => {
     const productId = line?.merchandise?.product?.id?.match(/(\d+)/)[0];
-     return productId === riseGiftCardId;
-    });
+    return productId === riseGiftCardId;
+  });
 }
 
 function isGiftCardAlreadyApplied(loyaltyCardCode) {
@@ -96,18 +96,18 @@ function isGiftCardAlreadyApplied(loyaltyCardCode) {
 }
 
 function renderQuickApply(textHTML, data) {
-  if(!textHTML) return
-  
-  const variables = ["{{shop_name}}", "{{customer_first_name}}","{{customer_last_name}}","{{store_credit_value}}","{{store_credit_code}}"]
+  if (!textHTML) return
 
-   variables.forEach((x, i)=>{
+  const variables = ["{{shop_name}}", "{{customer_first_name}}", "{{customer_last_name}}", "{{store_credit_value}}", "{{store_credit_code}}"]
+
+  variables.forEach((x, i) => {
     textHTML = textHTML.replace(x, data[i])
   })
 
-  textHTML =textHTML.replaceAll("<strong>", "")
-  textHTML =textHTML.replaceAll("<p>", "")
-  textHTML =textHTML.replaceAll("</strong>", "")
-  textHTML =textHTML.replaceAll("</p>", "")
+  textHTML = textHTML.replaceAll("<strong>", "")
+  textHTML = textHTML.replaceAll("<p>", "")
+  textHTML = textHTML.replaceAll("</strong>", "")
+  textHTML = textHTML.replaceAll("</p>", "")
 
   return textHTML
 
